@@ -1,0 +1,104 @@
+[
+  {
+    "target": "messi",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "messi.jpg",
+    "thumb": "messi_thumb.jpg"
+  },
+  {
+    "target": "dragon",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "dragon.jpg",
+    "thumb": "dragon_thumb.jpg"
+  },
+  [
+    {
+      "target": "juanes",
+      "grid": [
+        8,
+        12
+      ],
+      "photos_used": 96,
+      "file": "juanes.jpg",
+      "thumb": "juanes_thumb.jpg"
+    }
+  ],
+  {
+    "target": "pikachu",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "pikachu.jpg",
+    "thumb": "pikachu_thumb.jpg"
+  },
+  {
+    "target": "taylor",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "taylor.jpg",
+    "thumb": "taylor_thumb.jpg"
+  },
+  {
+    "target": "einstein",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "einstein.jpg",
+    "thumb": "einstein_thumb.jpg"
+  },
+  {
+    "target": "juanes",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "juanes.jpg",
+    "thumb": "juanes_thumb.jpg"
+  },
+  {
+    "target": "shakira",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "shakira.jpg",
+    "thumb": "shakira_thumb.jpg"
+  },
+  {
+    "target": "bob marley",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "bob_marley.jpg",
+    "thumb": "bob_marley_thumb.jpg"
+  },
+  {
+    "target": "queen",
+    "grid": [
+      8,
+      12
+    ],
+    "photos_used": 96,
+    "file": "queen.jpg",
+    "thumb": "queen_thumb.jpg"
+  }
+]
