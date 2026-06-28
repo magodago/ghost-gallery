@@ -2,254 +2,451 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3, user-scalable=yes, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Fotos</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Helvetica Neue',sans-serif;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 
-/* Status bar */
-.status{padding:54px 16px 0 16px;display:flex;justify-content:space-between;font-size:12px;position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(180deg,rgba(0,0,0,0.5) 0%,transparent 100%);height:80px;}
+/* ── STATUS BAR ── */
+.status{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#fff;}
 
-/* Nav */
-.nav{position:fixed;top:54px;left:0;right:0;z-index:99;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;}
-.nav h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;}
-.nav-actions{display:flex;gap:8px;}
-.nav-actions button{background:rgba(255,255,255,0.08);border:none;color:#007aff;font-size:14px;padding:6px 12px;border-radius:50px;cursor:pointer;font-weight:500;}
-.nav-actions button.orange{color:#ff9500;background:rgba(255,149,0,0.12);}
+/* ── NAV ── */
+.nav{position:fixed;top:54px;left:0;right:0;z-index:99;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(0,0,0,0.95);}
+.nav h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;color:#fff;}
+.nav-r{display:flex;gap:12px;align-items:center;}
+.nav-r button{background:none;border:none;color:#007aff;font-size:15px;font-weight:500;cursor:pointer;padding:4px;}
 
-/* Scroll area */
-.scroll{position:fixed;top:98px;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+/* ── TAB BAR ── */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:100;height:84px;background:rgba(0,0,0,0.92);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-around;align-items:flex-start;padding-top:4px;}
+.tab{display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;background:none;border:none;padding:4px 12px;min-width:64px;}
+.tab .icon{font-size:22px;line-height:1.2;filter:grayscale(1) brightness(0.6);transition:filter 0.2s;}
+.tab.active .icon{filter:none;}
+.tab .label{font-size:10px;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:-0.2px;transition:color 0.2s;}
+.tab.active .label{color:#007aff;}
+
+/* ── SCROLL ── */
+.scroll{position:fixed;top:98px;left:0;right:0;bottom:84px;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform;}
 .scroll::-webkit-scrollbar{display:none;}
 
-/* Photo grid */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;}
-.item{aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative;}
-.item:active{opacity:0.7;}
-.item img{width:100%;height:100%;object-fit:cover;display:block;}
+/* ── YEAR HEADER ── */
+.year-header{padding:20px 16px 4px;font-size:28px;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:flex-end;}
+.year-header small{font-size:14px;font-weight:400;color:rgba(255,255,255,0.4);}
 
-/* Viewer */
-.viewer{
-  position:fixed;inset:0;z-index:200;background:#000;
-  display:none;flex-direction:column;
-}
+/* ── PHOTO GRID ── */
+.photogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:0;}
+.photo{aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative;background:rgba(255,255,255,0.03);}
+.photo:active{opacity:0.6;}
+.photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo .sel{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);display:none;}
+.photo.selected .sel{display:flex;background:#007aff;border-color:#007aff;align-items:center;justify-content:center;font-size:12px;color:#fff;}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:40px;}
+.empty .icon{font-size:48px;opacity:0.2;}
+.empty p{font-size:15px;color:rgba(255,255,255,0.3);text-align:center;max-width:240px;line-height:1.5;}
+
+/* ── UPLOAD BUTTON ── */
+.upload-btn{position:fixed;bottom:100px;right:20px;z-index:90;width:56px;height:56px;border-radius:50%;background:#007aff;border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(0,122,255,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;}
+.upload-btn:active{transform:scale(0.9);}
+
+/* ── VIEWER ── */
+.viewer{position:fixed;inset:0;z-index:200;background:#000;display:none;flex-direction:column;}
 .viewer.open{display:flex;}
 .viewer-top{position:absolute;top:0;left:0;right:0;z-index:10;height:100px;background:linear-gradient(180deg,rgba(0,0,0,0.5),transparent);display:flex;justify-content:space-between;align-items:flex-start;padding:54px 16px 0;}
-.viewer-top button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px;}
-.viewer-img{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-.viewer-img img{max-width:100%;max-height:100%;object-fit:contain;transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);}
+.viewer-top button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px;opacity:0.8;}
+.viewer-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.viewer-wrap img{max-width:100%;max-height:100%;object-fit:contain;}
+.viewer-bot{position:absolute;bottom:0;left:0;right:0;z-index:10;height:80px;background:linear-gradient(0deg,rgba(0,0,0,0.3),transparent);display:flex;justify-content:center;align-items:flex-end;padding-bottom:20px;gap:40px;}
+.viewer-bot button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:0.7;transition:opacity 0.2s;}
+.viewer-bot button:active{opacity:1;}
 
-/* Mosaic overlay (hidden by default) */
-.mosaic-overlay{
-  position:absolute;inset:0;z-index:5;
-  opacity:0;pointer-events:none;transition:opacity 0.5s ease;
-  display:flex;align-items:center;justify-content:center;
-  background:#000;
-}
-.mosaic-overlay.active{opacity:1;pointer-events:auto;}
-.mosaic-overlay img{max-width:100%;max-height:100%;object-fit:contain;}
+/* ── MOSAIC OVERLAY ── */
+.mosaic-layer{position:absolute;inset:0;z-index:5;opacity:0;pointer-events:none;transition:opacity 0.5s ease;display:flex;align-items:center;justify-content:center;background:#000;}
+.mosaic-layer.active{opacity:1;pointer-events:auto;}
+.mosaic-layer img{max-width:100%;max-height:100%;object-fit:contain;}
 
-/* Receiving */
-.receiving{
-  position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.85);backdrop-filter:blur(40px);
-  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
-}
-.receiving.show{display:flex;}
-.receiving .pulse{width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:30px;animation:pulse 1.5s ease-in-out infinite;}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.1);opacity:1}}
-.receiving p{font-size:14px;color:rgba(255,255,255,0.4);}
-.receiving .target{font-size:36px;font-weight:700;color:#fff;}
+/* ── RECEIVING ── */
+.recv{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.85);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+.recv.show{display:flex;}
+.recv-pulse{width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:30px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.15);opacity:1}}
+.recv p{font-size:14px;color:rgba(255,255,255,0.3);}
+.recv .name{font-size:36px;font-weight:700;color:#fff;}
 
-/* Toast */
-.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(40px);z-index:300;padding:10px 20px;border-radius:16px;background:rgba(40,40,40,0.95);backdrop-filter:blur(20px);font-size:13px;color:#fff;opacity:0;pointer-events:none;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(40px);z-index:300;padding:10px 20px;border-radius:14px;background:rgba(40,40,40,0.95);backdrop-filter:blur(20px);font-size:13px;color:#fff;opacity:0;pointer-events:none;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* Zoom hint */
-.zoom-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:6;padding:8px 16px;border-radius:20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);font-size:11px;color:rgba(255,255,255,0.4);pointer-events:none;white-space:nowrap;transition:opacity 0.3s;}
-.zoom-hint.hidden{opacity:0;}
+/* ── ALBUMS TAB ── */
+.album-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 24px;}
+.album{cursor:pointer;}
+.album-thumb{width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.04);margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative;}
+.album-thumb img{width:100%;height:100%;object-fit:cover;}
+.album-thumb .count{position:absolute;bottom:8px;right:8px;font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;}
+.album-name{font-size:13px;font-weight:600;color:#fff;}
+.album-sub{font-size:11px;color:rgba(255,255,255,0.4);}
+
+/* ── HIDDEN ── */
+.hide{display:none !important;}
+
+/* ── DELETE ── */
+.delete-btn{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:90;background:rgba(255,59,48,0.9);border:none;color:#fff;font-size:12px;font-weight:600;padding:10px 24px;border-radius:50px;cursor:pointer;display:none;backdrop-filter:blur(10px);}
+.delete-btn.show{display:block;}
 </style>
 </head>
 <body>
 
-<div class="status"><span id="sTime">9:41</span><span id="sBat">87%</span></div>
+<div class="status" id="statusBar"><span id="sTime">9:41</span><span id="sBat">87%</span></div>
 
 <div class="nav">
-  <h1>Fotos</h1>
-  <div class="nav-actions">
-    <button onclick="manualInject()" class="orange">+</button>
+  <h1 id="navTitle">Fotos</h1>
+  <div class="nav-r">
+    <button id="addBtn" onclick="document.getElementById('fileInput').click()">➕</button>
+    <button id="selBtn" onclick="toggleSelect()">Seleccionar</button>
   </div>
 </div>
 
 <div class="scroll" id="scroll">
-  <div class="grid" id="grid"></div>
+
+  <!-- Photos tab -->
+  <div id="photosTab">
+    <div class="empty" id="emptyState">
+      <div class="icon">🖼️</div>
+      <p>Tus fotos aparecerán aquí<br>Toca + para empezar</p>
+    </div>
+    <div id="yearContainer"></div>
+  </div>
+
+  <!-- Albums tab -->
+  <div id="albumsTab" class="hide">
+    <div class="album-grid" id="albumGrid"></div>
+  </div>
 </div>
 
+<!-- Upload FAB -->
+<button class="upload-btn" id="fabBtn" onclick="document.getElementById('fileInput').click()">+</button>
+
+<!-- Delete button -->
+<button class="delete-btn" id="delBtn" onclick="deleteSelected()">Eliminar seleccionadas</button>
+
+<!-- Hidden file input -->
+<input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleUpload(event)">
+
+<!-- Tab bar -->
+<div class="tabbar" id="tabbar">
+  <button class="tab active" data-tab="photos" onclick="switchTab('photos')"><span class="icon">🖼️</span><span class="label">Fotos</span></button>
+  <button class="tab" data-tab="forYou" onclick="switchTab('forYou')"><span class="icon">💎</span><span class="label">Para ti</span></button>
+  <button class="tab" data-tab="albums" onclick="switchTab('albums')"><span class="icon">📁</span><span class="label">Álbumes</span></button>
+  <button class="tab" data-tab="search" onclick="showToast('🔍 Buscar')"><span class="icon">🔍</span><span class="label">Buscar</span></button>
+</div>
+
+<!-- Viewer -->
 <div class="viewer" id="viewer">
   <div class="viewer-top">
     <button onclick="closeViewer()">✕</button>
-    <button onclick="manualInject()" style="color:#ff9500;">+</button>
+    <button onclick="document.getElementById('fileInput').click()">➕</button>
   </div>
-  <div class="viewer-img" id="viewerImg">
+  <div class="viewer-wrap" id="viewerWrap">
     <img id="vImg" src="" alt="">
-    <div class="mosaic-overlay" id="mosaicOverlay">
-      <img id="mosaicImg" src="" alt="">
-    </div>
-    <div class="zoom-hint" id="zoomHint">Aleja con dos dedos</div>
+    <div class="mosaic-layer" id="mosaicLayer"><img id="mosaicImg" src="" alt=""></div>
+  </div>
+  <div class="viewer-bot">
+    <button onclick="sharePhoto()">⬆️</button>
+    <button onclick="toggleMosaic()" id="mosaicBtn">🔲</button>
+    <button onclick="deleteCurrent()">🗑️</button>
   </div>
 </div>
 
-<div class="receiving" id="receiving">
-  <div class="pulse">📡</div>
+<!-- Receiving overlay -->
+<div class="recv" id="recv">
+  <div class="recv-pulse">📡</div>
   <p>Recibiendo señal...</p>
-  <div class="target" id="rTarget"></div>
+  <div class="name" id="recvName"></div>
 </div>
 
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════
-//  GHOST GALLERY — Versión real
-// ═══════════════════════════════════
+// ══════════════════════════════════════════
+//  GHOST GALLERY — iOS Photos Clone + Upload
+// ══════════════════════════════════════════
 
-// Your photos (100 picsum placeholders — replace with yours!)
-const PHOTOS = Array.from({length:72}, (_,i) =>
-  `https://picsum.photos/id/${(i*7 % 500) + 10}/400/400`
-);
-
-// Pre-generated mosaics manifest
-const MOSAICS = {
-  "juanes": "juanes_thumb.jpg",
-  "messi": "messi_thumb.jpg",
-  "taylor": "taylor_thumb.jpg",
-  "bob marley": "bob_marley_thumb.jpg",
-  "shakira": "shakira_thumb.jpg",
-  "queen": "queen_thumb.jpg",
-  "pikachu": "pikachu_thumb.jpg",
-  "einstein": "einstein_thumb.jpg",
-  "dragon": "dragon_thumb.jpg",
-};
-const MOSAIC_BASE = "mosaics/";
-
-let currentTarget = null;
-let mosaicActive = false;
+// ── STATE ──
+let photos = JSON.parse(localStorage.getItem('gg_photos') || '[]');
+let selecting = false;
+let selected = new Set();
+let currentIdx = -1;
 let viewerOpen = false;
+let mosaicActive = false;
+let currentTarget = null;
+let tab = 'photos';
 
-// ── RENDER ──
-function renderGrid(){
-  const g = document.getElementById('grid');
-  g.innerHTML = PHOTOS.map((u,i) =>
-    `<div class="item" onclick="openPhoto(${i})"><img src="${u}" alt="" loading="${i<9?'eager':'lazy'}"></div>`
-  ).join('');
+// ── SAVE ──
+function save(){
+  localStorage.setItem('gg_photos', JSON.stringify(photos.map(p => ({
+    id: p.id, name: p.name, date: p.date, dataUrl: p.dataUrl
+  }))));
 }
 
-// ── VIEWER ──
-function openPhoto(idx){
+// ── HANDLE UPLOAD ──
+function handleUpload(e){
+  const files = e.target.files;
+  if(!files.length) return;
+  let loaded = 0;
+  for(const f of files){
+    if(!f.type.startsWith('image/')) continue;
+    const reader = new FileReader();
+    const id = Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    reader.onload = (ev) => {
+      photos.push({
+        id, name: f.name,
+        date: new Date().toISOString().slice(0,10),
+        dataUrl: ev.target.result
+      });
+      loaded++;
+      if(loaded === files.length){
+        save();
+        renderAll();
+        showToast(`✅ ${loaded} foto${loaded>1?'s':''} subida${loaded>1?'s':''}`);
+      }
+    };
+    reader.readAsDataURL(f);
+  }
+  e.target.value = '';
+}
+
+// ── RENDER ──
+function renderAll(){
+  renderPhotos();
+  renderAlbums();
+}
+
+function renderPhotos(){
+  const container = document.getElementById('yearContainer');
+  const empty = document.getElementById('emptyState');
+
+  if(photos.length === 0){
+    container.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Group by year, then month
+  const years = {};
+  for(const p of photos){
+    const y = p.date.slice(0,4);
+    if(!years[y]) years[y] = [];
+    years[y].push(p);
+  }
+
+  let html = '';
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  for(const [year, yrPhotos] of Object.entries(years).sort((a,b)=>b[0]-a[0])){
+    // Month groups
+    const monthsData = {};
+    for(const p of yrPhotos){
+      const m = parseInt(p.date.slice(5,7));
+      if(!monthsData[m]) monthsData[m] = [];
+      monthsData[m].push(p);
+    }
+
+    html += `<div class="year-header">${year} <small>${yrPhotos.length} fotos</small></div>`;
+    let cellCount = 0;
+
+    for(const m of Object.keys(monthsData).sort((a,b)=>b-a)){
+      const mPhotos = monthsData[m].reverse();
+      html += `<div class="photogrid">`;
+      for(const p of mPhotos){
+        const sel = selected.has(p.id) ? 'selected' : '';
+        html += `<div class="photo ${sel}" data-id="${p.id}" onclick="openPhoto('${p.id}')">
+          <img src="${p.dataUrl}" alt="" loading="lazy">
+          <div class="sel">✓</div>
+        </div>`;
+        cellCount++;
+      }
+      html += `</div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+function renderAlbums(){
+  const grid = document.getElementById('albumGrid');
+  const total = photos.length;
+  const recent = photos.slice(-4);
+  grid.innerHTML = `
+    <div class="album" onclick="switchTab('photos')">
+      <div class="album-thumb">${total > 0 ? `<img src="${photos[photos.length-1].dataUrl}" alt=""><span class="count">${total}</span>` : '🖼️'}</div>
+      <div class="album-name">Recents</div>
+      <div class="album-sub">${total} elementos</div>
+    </div>
+    <div class="album"><div class="album-thumb">⭐</div><div class="album-name">Favoritos</div><div class="album-sub">0 elementos</div></div>
+    <div class="album"><div class="album-thumb">📱</div><div class="album-name">Capturas</div><div class="album-sub">0 elementos</div></div>
+    <div class="album"><div class="album-thumb">🎬</div><div class="album-name">Vídeos</div><div class="album-sub">0 elementos</div></div>
+    <div class="album"><div class="album-thumb">📥</div><div class="album-name">Importados</div><div class="album-sub">${total} elementos</div></div>
+  `;
+}
+
+// ── SWITCH TAB ──
+function switchTab(t){
+  tab = t;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === t));
+  document.getElementById('photosTab').classList.toggle('hide', t !== 'photos');
+  document.getElementById('albumsTab').classList.toggle('hide', t !== 'albums');
+  document.getElementById('fabBtn').style.display = t === 'photos' ? 'flex' : 'none';
+  const title = {'photos':'Fotos','forYou':'Para ti','albums':'Álbumes','search':'Buscar'};
+  document.getElementById('navTitle').textContent = title[t] || 'Fotos';
+  document.getElementById('selBtn').style.display = t === 'photos' ? 'block' : 'none';
+}
+
+// ── OPEN PHOTO ──
+function openPhoto(id){
+  const idx = photos.findIndex(p => p.id === id);
+  if(idx === -1) return;
+  if(selecting){
+    toggleSelectPhoto(id);
+    return;
+  }
+  currentIdx = idx;
   viewerOpen = true;
   mosaicActive = false;
-  document.getElementById('vImg').src = PHOTOS[idx];
-  document.getElementById('vImg').style.transform = 'scale(1)';
-  document.getElementById('mosaicOverlay').classList.remove('active');
+  document.getElementById('vImg').src = photos[idx].dataUrl;
+  document.getElementById('mosaicLayer').classList.remove('active');
   document.getElementById('mosaicImg').src = '';
   document.getElementById('viewer').classList.add('open');
-  document.getElementById('zoomHint').classList.remove('hidden');
 }
 
 function closeViewer(){
   viewerOpen = false;
   document.getElementById('viewer').classList.remove('open');
-  document.getElementById('mosaicOverlay').classList.remove('active');
+  document.getElementById('mosaicLayer').classList.remove('active');
 }
 
-// ── PINCH ZOOM ──
-let startDist = 0;
-const vw = document.getElementById('viewerImg');
-
-vw.addEventListener('touchstart', e => {
-  if(e.touches.length === 2){
-    const dx = e.touches[0].cx - e.touches[1].cx || e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].cy - e.touches[1].cy || e.touches[0].clientY - e.touches[1].clientY;
-    startDist = Math.sqrt(dx*dx + dy*dy);
-  }
-}, {passive:true});
-
-vw.addEventListener('touchmove', e => {
-  if(e.touches.length !== 2) return;
-  const dx = e.touches[0].clientX - e.touches[1].clientX;
-  const dy = e.touches[0].clientY - e.touches[1].clientY;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  const img = document.getElementById('vImg');
-
-  if(!mosaicActive && startDist > 0 && dist / startDist < 0.55 && currentTarget){
-    e.preventDefault();
-    revealMosaic();
-  } else if(!mosaicActive){
-    const s = Math.max(0.3, Math.min(3, dist / (startDist || 1)));
-    img.style.transform = `scale(${s})`;
-  }
-}, {passive:false});
-
-// ── DOUBLE TAP ──
-let lt = 0;
-vw.addEventListener('click', () => {
-  const n = Date.now();
-  if(n - lt < 350 && currentTarget){
-    if(mosaicActive) hideMosaic();
-    else revealMosaic();
-  }
-  lt = n;
-});
-
-// ── MOSAIC ──
-function revealMosaic(){
-  if(!currentTarget) return;
-  const key = currentTarget.toLowerCase().trim();
-  const file = MOSAICS[key];
-  if(!file){
-    showToast('❌ No hay mosaico para: ' + currentTarget);
+// ── TOGGLE MOSAIC IN VIEWER ──
+function toggleMosaic(){
+  if(!mosaicActive && !currentTarget){
+    showToast('❌ No hay target');
     return;
   }
+  if(mosaicActive){
+    mosaicActive = false;
+    document.getElementById('mosaicLayer').classList.remove('active');
+  } else {
+    showMosaic();
+  }
+}
+
+function showMosaic(){
+  if(!currentTarget) return;
   mosaicActive = true;
-  document.getElementById('vImg').style.transform = 'scale(0.35)';
-  const mImg = document.getElementById('mosaicImg');
-  mImg.src = MOSAIC_BASE + file + '?t=' + Date.now();
-  mImg.onload = () => {
-    document.getElementById('mosaicOverlay').classList.add('active');
-    document.getElementById('zoomHint').classList.add('hidden');
+  const key = currentTarget.toLowerCase().trim().replace(/\s+/g,'_');
+  const url = `mosaics/${key}_thumb.jpg?t=${Date.now()}`;
+  const img = document.getElementById('mosaicImg');
+  
+  // Check if mosaic exists
+  const exists = MOSAIC_LIST.includes(key);
+  if(!exists){
+    showToast('❌ No hay mosaico para: ' + currentTarget);
+    mosaicActive = false;
+    return;
+  }
+  
+  img.src = url;
+  img.onload = () => {
+    document.getElementById('mosaicLayer').classList.add('active');
     showToast('🔮 ' + currentTarget);
   };
-  mImg.onerror = () => {
+  img.onerror = () => {
     showToast('❌ Error cargando mosaico');
     mosaicActive = false;
   };
 }
 
-function hideMosaic(){
-  mosaicActive = false;
-  document.getElementById('mosaicOverlay').classList.remove('active');
-  document.getElementById('vImg').style.transform = 'scale(1)';
-  document.getElementById('zoomHint').classList.remove('hidden');
-}
+// ── MOSAIC LIST ──
+const MOSAIC_LIST = ['juanes','messi','taylor','bob_marley','shakira','queen','pikachu','einstein','dragon'];
 
 // ── INJECT ──
 function processTarget(val){
   currentTarget = val;
-  const r = document.getElementById('receiving');
-  document.getElementById('rTarget').textContent = val;
+  const r = document.getElementById('recv');
+  document.getElementById('recvName').textContent = val;
   r.classList.add('show');
   setTimeout(() => {
     r.classList.remove('show');
     showToast('📡 ' + val);
-    // If viewer is open, auto-reveal
-    if(viewerOpen) revealMosaic();
+    if(viewerOpen) showMosaic();
   }, 1500);
 }
 
 function manualInject(){
-  const v = prompt('Target:');
+  const v = prompt('Target (Juanes, Messi, Taylor...):');
   if(v && v.trim()) processTarget(v.trim());
 }
+
+// ── SELECT MODE ──
+function toggleSelect(){
+  selecting = !selecting;
+  document.getElementById('selBtn').textContent = selecting ? 'Cancelar' : 'Seleccionar';
+  document.getElementById('delBtn').classList.toggle('show', selecting);
+  if(!selecting){
+    selected.clear();
+    renderPhotos();
+  }
+}
+
+function toggleSelectPhoto(id){
+  if(selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  document.getElementById('delBtn').textContent = `Eliminar (${selected.size})`;
+  renderPhotos();
+}
+
+function deleteSelected(){
+  if(selected.size === 0) return;
+  if(!confirm(`¿Eliminar ${selected.size} foto${selected.size>1?'s':''}?`)) return;
+  photos = photos.filter(p => !selected.has(p.id));
+  selected.clear();
+  selecting = false;
+  document.getElementById('selBtn').textContent = 'Seleccionar';
+  document.getElementById('delBtn').classList.remove('show');
+  save();
+  renderAll();
+  showToast('🗑️ Eliminadas');
+}
+
+function deleteCurrent(){
+  if(currentIdx === -1) return;
+  if(!confirm('¿Eliminar esta foto?')) return;
+  photos.splice(currentIdx, 1);
+  save();
+  closeViewer();
+  renderAll();
+  showToast('🗑️ Eliminada');
+}
+
+function sharePhoto(){
+  if(currentIdx === -1) return;
+  if(navigator.share){
+    navigator.share({ title: 'Foto', text: 'Mira esta foto' });
+  } else {
+    showToast('⬆️ Compartir no disponible');
+  }
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if(e.key === 'i' || e.key === 'I') manualInject();
+  if(e.key === 'Escape'){
+    if(viewerOpen) closeViewer();
+    else if(selecting) toggleSelect();
+  }
+});
 
 // ── CLOCK ──
 function clock(){
@@ -268,7 +465,7 @@ function connectWS(){
       try{
         const d = JSON.parse(e.data);
         const v = d.value || d.target || d.text || d.message || e.data;
-        if(typeof v === 'string' && v.length > 0) processTarget(v);
+        if(typeof v === 'string' && v.length > 0 && v.length < 100) processTarget(v);
       } catch {
         if(typeof e.data === 'string' && e.data.length < 100) processTarget(e.data.trim());
       }
@@ -285,18 +482,26 @@ function showToast(m){
   const t = document.getElementById('toast');
   t.textContent = m;
   t.classList.add('show');
-  tt = setTimeout(() => t.classList.remove('show'), 2200);
+  tt = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-document.addEventListener('keydown', e => {
-  if(e.key === 'i' || e.key === 'I') manualInject();
-  if(e.key === 'Escape' && viewerOpen) closeViewer();
-});
+// ── LONG PRESS FOR CONTEXT ──
+let longTimer;
+document.getElementById('scroll').addEventListener('touchstart', (e) => {
+  longTimer = setTimeout(() => {
+    if(!selecting && photos.length > 0){
+      toggleSelect();
+      showToast('Selecciona fotos');
+    }
+  }, 600);
+}, {passive:true});
+document.getElementById('scroll').addEventListener('touchend', () => clearTimeout(longTimer), {passive:true});
+document.getElementById('scroll').addEventListener('touchmove', () => clearTimeout(longTimer), {passive:true});
 
+// ── INIT ──
 window.inject = processTarget;
-
-renderGrid();
-showToast('📸 ' + Object.keys(MOSAICS).length + ' targets');
+renderAll();
+showToast(`📸 ${photos.length} fotos`);
 </script>
 </body>
 </html>
